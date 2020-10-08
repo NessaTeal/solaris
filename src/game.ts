@@ -1,4 +1,5 @@
 import 'phaser';
+import PlanetSystem from './planet-system';
 
 export default class Demo extends Phaser.Scene {
   constructor() {
@@ -6,19 +7,20 @@ export default class Demo extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image('logo', 'assets/phaser3-logo.png');
+    //
   }
 
   create(): void {
-    this.add.image(206, 46, 'logo');
+    const planetSystem = new PlanetSystem(this, 100, 100);
+    this.add.existing(planetSystem);
   }
 }
 
 const config = {
   type: Phaser.AUTO,
   backgroundColor: '#123456',
-  width: 413,
-  height: 93,
+  width: 1000,
+  height: 1000,
   scene: Demo,
 };
 
