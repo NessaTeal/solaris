@@ -1,7 +1,7 @@
 {
-    "name": "phaser3-typescript-project-template",
+    "name": "solaris",
     "version": "1.0.2",
-    "description": "A Phaser 3 Project Template using Rollup and TypeScript",
+    "description": "4X inspired game",
     "main": "src/game.ts",
     "scripts": {
         "dev": "rollup --config rollup.config.dev.js",
@@ -10,14 +10,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/photonstorm/phaser3-typescript-project-template.git"
+        "url": "git+https://github.com/vadimjprokopev/solaris.git"
     },
-    "author": "Richard Davey <rich@photonstorm.com> (http://www.photonstorm.com)",
+    "author": "Vadim Prokopev",
     "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/photonstorm/phaser3-typescript-project-template/issues"
-    },
-    "homepage": "https://github.com/photonstorm/phaser3-typescript-project-template#readme",
     "dependencies": {},
     "devDependencies": {
         "@rollup/plugin-replace": "^2.3.0",
