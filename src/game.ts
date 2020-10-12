@@ -4,6 +4,7 @@ import PlanetSystem, {
   HABITABLE_AREA_KEY,
   HIDE_SYSTEM_STATS_EVENT,
   SHOW_SYSTEM_STATS_EVENT,
+  UPDATE_SYSTEM_STATS_EVENT,
 } from './planet-system';
 
 export default class Main extends Phaser.Scene {
@@ -67,9 +68,11 @@ export default class Main extends Phaser.Scene {
     this.stats.setVisible(false);
     this.add.existing(this.stats);
 
-    this.events.on(SHOW_SYSTEM_STATS_EVENT, () => {
+    this.events.on(UPDATE_SYSTEM_STATS_EVENT, () => {
       this.statsHabitableArea.setText(this.registry.get(HABITABLE_AREA_KEY));
       this.statsExplorableArea.setText(this.registry.get(EXPLORABLE_AREA_KEY));
+    });
+    this.events.on(SHOW_SYSTEM_STATS_EVENT, () => {
       this.stats.setVisible(true);
     });
     this.events.on(HIDE_SYSTEM_STATS_EVENT, () => {
