@@ -1,6 +1,7 @@
 import 'phaser';
 
 const RADIUS = 50;
+const EXPLORATION_SPEED = 40;
 
 export const SHOW_SYSTEM_STATS_EVENT = 'show_system_stats';
 export const HIDE_SYSTEM_STATS_EVENT = 'hide_system_stats';
@@ -11,12 +12,14 @@ export default class PlanetSystem extends Phaser.GameObjects.Container {
   planet: Phaser.GameObjects.Ellipse;
   habitableArea: number;
   explorableArea: number;
+  explorationProgress: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
     this.configurePlanet(scene);
     this.habitableArea = Phaser.Math.Between(100, 200);
     this.explorableArea = Phaser.Math.Between(300, 400);
+    this.explorationProgress = 0;
   }
 
   configurePlanet(scene: Phaser.Scene): void {
@@ -51,5 +54,23 @@ export default class PlanetSystem extends Phaser.GameObjects.Container {
       new Phaser.Geom.Circle(RADIUS, RADIUS, RADIUS),
       Phaser.Geom.Circle.Contains,
     );
+  }
+
+  update(time: number, delta: number): void {
+    if (this.explorableArea === 0) {
+      return;
+    }
+
+    this.explorationProgress += (EXPLORATION_SPEED * delta) / 1000;
+
+    if (this.explorationProgress > 0) {
+      const wholeValue = Math.min(
+        Math.floor(this.explorationProgress),
+        this.habitableArea,
+      );
+      this.explorationProgress -= wholeValue;
+      this.habitableArea += wholeValue;
+      this.explorableArea -= wholeValue;
+    }
   }
 }

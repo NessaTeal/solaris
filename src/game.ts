@@ -10,6 +10,7 @@ export default class Main extends Phaser.Scene {
   stats: Phaser.GameObjects.Container;
   statsHabitableArea: Phaser.GameObjects.Text;
   statsExplorableArea: Phaser.GameObjects.Text;
+  planetSystems: Phaser.GameObjects.Group;
 
   constructor() {
     super('main');
@@ -20,10 +21,9 @@ export default class Main extends Phaser.Scene {
   }
 
   create(): void {
-    const planetSystem = new PlanetSystem(this, 100, 100);
-    this.add.existing(planetSystem);
-    const planetSystem2 = new PlanetSystem(this, 400, 400);
-    this.add.existing(planetSystem2);
+    this.planetSystems = new Phaser.GameObjects.Group(this);
+    this.planetSystems.add(new PlanetSystem(this, 100, 100), true);
+    this.planetSystems.add(new PlanetSystem(this, 400, 400), true);
 
     const statsHabitableAreaLabel = new Phaser.GameObjects.Text(
       this,
@@ -74,6 +74,12 @@ export default class Main extends Phaser.Scene {
     });
     this.events.on(HIDE_SYSTEM_STATS_EVENT, () => {
       this.stats.setVisible(false);
+    });
+  }
+
+  update(time: number, delta: number): void {
+    this.planetSystems.getChildren().forEach((ps) => {
+      ps.update(time, delta);
     });
   }
 }
