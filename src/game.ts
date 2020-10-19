@@ -1,9 +1,9 @@
 import 'phaser';
 import PlanetSystem, {
-  EXPLORABLE_AREA_KEY,
-  HABITABLE_AREA_KEY,
   HIDE_SYSTEM_STATS_EVENT,
+  KNOWN_SECTORS_KEY,
   SHOW_SYSTEM_STATS_EVENT,
+  UNKNOWN_SECTORS_KEY,
   UPDATE_SYSTEM_STATS_EVENT,
 } from './planet-system';
 
@@ -30,7 +30,7 @@ export default class Main extends Phaser.Scene {
       this,
       30,
       0,
-      'Habitable area:',
+      'Known sectors:',
       {
         fontFamily: 'Arial',
         color: '#00ddff',
@@ -47,7 +47,7 @@ export default class Main extends Phaser.Scene {
       this,
       30,
       50,
-      'Explorable area:',
+      'Unknown sectors:',
       {
         fontFamily: 'Arial',
         color: '#00ddff',
@@ -69,8 +69,8 @@ export default class Main extends Phaser.Scene {
     this.add.existing(this.stats);
 
     this.events.on(UPDATE_SYSTEM_STATS_EVENT, () => {
-      this.statsHabitableArea.setText(this.registry.get(HABITABLE_AREA_KEY));
-      this.statsExplorableArea.setText(this.registry.get(EXPLORABLE_AREA_KEY));
+      this.statsHabitableArea.setText(this.registry.get(KNOWN_SECTORS_KEY));
+      this.statsExplorableArea.setText(this.registry.get(UNKNOWN_SECTORS_KEY));
     });
     this.events.on(SHOW_SYSTEM_STATS_EVENT, () => {
       this.stats.setVisible(true);

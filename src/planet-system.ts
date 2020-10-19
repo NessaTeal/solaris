@@ -1,26 +1,29 @@
 import 'phaser';
+import PlanetSector from './sector';
 
 const RADIUS = 50;
-const EXPLORATION_SPEED = 40;
+const EXPLORATION_SPEED = 1;
 
 export const SHOW_SYSTEM_STATS_EVENT = 'show_system_stats';
 export const HIDE_SYSTEM_STATS_EVENT = 'hide_system_stats';
 export const UPDATE_SYSTEM_STATS_EVENT = 'system_stats_updated';
-export const HABITABLE_AREA_KEY = 'habitable_area';
-export const EXPLORABLE_AREA_KEY = 'explorable_area';
+export const KNOWN_SECTORS_KEY = 'known_sectors';
+export const UNKNOWN_SECTORS_KEY = 'unknown_sectors';
 
 export default class PlanetSystem extends Phaser.GameObjects.Container {
   planet: Phaser.GameObjects.Ellipse;
-  habitableArea: number;
-  explorableArea: number;
   explorationProgress: number;
   shown: boolean;
+  unknownSectors: PlanetSector[];
+  knownSectors: PlanetSector[];
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
     this.configurePlanet(scene);
-    this.habitableArea = Phaser.Math.Between(100, 200);
-    this.explorableArea = Phaser.Math.Between(300, 400);
+    this.unknownSectors = PlanetSector.generatePlanetSectors(200, 3);
+
+    console.log(this.unknownSectors);
+    this.knownSectors = [];
     this.explorationProgress = 0;
     this.shown = false;
   }
@@ -46,8 +49,8 @@ export default class PlanetSystem extends Phaser.GameObjects.Container {
 
     this.planet.on('pointerover', () => {
       this.shown = true;
-      scene.registry.set(HABITABLE_AREA_KEY, this.habitableArea);
-      scene.registry.set(EXPLORABLE_AREA_KEY, this.explorableArea);
+      scene.registry.set(KNOWN_SECTORS_KEY, this.knownSectors.length);
+      scene.registry.set(UNKNOWN_SECTORS_KEY, this.unknownSectors.length);
       scene.events.emit(UPDATE_SYSTEM_STATS_EVENT);
       scene.events.emit(SHOW_SYSTEM_STATS_EVENT);
     });
@@ -63,7 +66,7 @@ export default class PlanetSystem extends Phaser.GameObjects.Container {
   }
 
   update(time: number, delta: number): void {
-    if (this.explorableArea === 0) {
+    if (this.unknownSectors.length === 0) {
       return;
     }
 
@@ -72,16 +75,15 @@ export default class PlanetSystem extends Phaser.GameObjects.Container {
     if (this.explorationProgress > 0) {
       const wholeValue = Math.min(
         Math.floor(this.explorationProgress),
-        this.habitableArea,
+        this.unknownSectors.length,
       );
       this.explorationProgress -= wholeValue;
-      this.habitableArea += wholeValue;
-      this.explorableArea -= wholeValue;
+      this.knownSectors.push(...this.unknownSectors.splice(0, wholeValue));
     }
 
     if (this.shown) {
-      this.scene.registry.set(HABITABLE_AREA_KEY, this.habitableArea);
-      this.scene.registry.set(EXPLORABLE_AREA_KEY, this.explorableArea);
+      this.scene.registry.set(KNOWN_SECTORS_KEY, this.knownSectors.length);
+      this.scene.registry.set(UNKNOWN_SECTORS_KEY, this.unknownSectors.length);
       this.scene.events.emit(UPDATE_SYSTEM_STATS_EVENT);
     }
   }
