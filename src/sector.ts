@@ -1,10 +1,34 @@
+import { ResourceManager } from './resource-manager';
+
 export default class PlanetSector {
   distance: number;
   type: PlanetSectorType;
+  isActive: boolean;
 
   constructor(distance: number) {
     this.distance = distance;
-    this.type = PlanetSectorType.HABITABLE;
+    const random = Math.random();
+    if (random <= 0.5) {
+      this.type = PlanetSectorType.HABITABLE;
+    } else if (random <= 0.75) {
+      this.type = PlanetSectorType.FOOD;
+    } else {
+      this.type = PlanetSectorType.INDUSTRY;
+    }
+    this.isActive = true;
+  }
+
+  update(delta: number, resourceManager: ResourceManager): void {
+    if (this.isActive) {
+      switch (this.type) {
+        case PlanetSectorType.FOOD:
+          resourceManager.increaseFood(2 * delta);
+          break;
+        case PlanetSectorType.INDUSTRY:
+          resourceManager.increaseIndustry(3 * delta);
+          break;
+      }
+    }
   }
 
   static generatePlanetSectors(
@@ -36,4 +60,6 @@ export default class PlanetSector {
 
 export enum PlanetSectorType {
   HABITABLE,
+  FOOD,
+  INDUSTRY,
 }

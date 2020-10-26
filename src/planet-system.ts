@@ -1,4 +1,6 @@
 import 'phaser';
+import { UPDATE_HUD_EVENT } from './hud';
+import { RESOURCE_MANAGER_KEY } from './resource-manager';
 import PlanetSector from './sector';
 
 const RADIUS = 50;
@@ -16,16 +18,21 @@ export default class PlanetSystem extends Phaser.GameObjects.Container {
   shown: boolean;
   unknownSectors: PlanetSector[];
   knownSectors: PlanetSector[];
+  owner: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y);
     this.configurePlanet(scene);
     this.unknownSectors = PlanetSector.generatePlanetSectors(200, 3);
 
-    console.log(this.unknownSectors);
     this.knownSectors = [];
     this.explorationProgress = 0;
     this.shown = false;
+    this.owner = null;
+  }
+
+  setOwner(player: number): void {
+    this.owner = player;
   }
 
   configurePlanet(scene: Phaser.Scene): void {
@@ -66,25 +73,41 @@ export default class PlanetSystem extends Phaser.GameObjects.Container {
   }
 
   update(time: number, delta: number): void {
-    if (this.unknownSectors.length === 0) {
+    if (this.owner === null) {
       return;
     }
 
-    this.explorationProgress += (EXPLORATION_SPEED * delta) / 1000;
+    if (this.unknownSectors.length !== 0) {
+      this.explorationProgress += EXPLORATION_SPEED * delta;
 
-    if (this.explorationProgress > 0) {
-      const wholeValue = Math.min(
-        Math.floor(this.explorationProgress),
-        this.unknownSectors.length,
+      if (this.explorationProgress > 0) {
+        const wholeValue = Math.min(
+          Math.floor(this.explorationProgress),
+          this.unknownSectors.length,
+        );
+        this.explorationProgress -= wholeValue;
+        this.knownSectors.push(...this.unknownSectors.splice(0, wholeValue));
+      }
+
+      if (this.shown) {
+        this.scene.registry.set(KNOWN_SECTORS_KEY, this.knownSectors.length);
+        this.scene.registry.set(
+          UNKNOWN_SECTORS_KEY,
+          this.unknownSectors.length,
+        );
+        this.scene.events.emit(UPDATE_SYSTEM_STATS_EVENT);
+      }
+    }
+
+    this.knownSectors
+      .filter((s) => s.isActive)
+      .forEach((s) =>
+        s.update(
+          delta,
+          this.scene.registry.get(RESOURCE_MANAGER_KEY + this.owner),
+        ),
       );
-      this.explorationProgress -= wholeValue;
-      this.knownSectors.push(...this.unknownSectors.splice(0, wholeValue));
-    }
 
-    if (this.shown) {
-      this.scene.registry.set(KNOWN_SECTORS_KEY, this.knownSectors.length);
-      this.scene.registry.set(UNKNOWN_SECTORS_KEY, this.unknownSectors.length);
-      this.scene.events.emit(UPDATE_SYSTEM_STATS_EVENT);
-    }
+    this.scene.events.emit(UPDATE_HUD_EVENT);
   }
 }
